@@ -33,7 +33,7 @@ module Telismo
   				:number => params[:number],
   				:name => params[:name],
   				:instruction => {
-  					:text => params[:text],
+  					:text => params[:description],
   					:sample => params[:sample]
   				},
   				:fields_b64 => Base64.strict_encode64(params[:fields].to_json),
