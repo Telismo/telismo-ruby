@@ -11,10 +11,6 @@ module Telismo
 		attr_accessor :api_key, :api_base, :api_version
 	end
 
-  	def self.createCall(params)
-  		puts "AX"
-  	end
-
   	def self.api_url(method='')
   		"http://#{self.api_key}:@#{@api_base}#{method}"
   	end
@@ -43,5 +39,17 @@ module Telismo
 
   			JSON.parse(response.to_str)
   		end
+
+      def self.cancel(params)
+
+        url = Telismo.api_url 'cancel'
+
+
+        response = RestClient.post url, {
+          :id => params,
+        }
+
+        JSON.parse(response.to_str)
+      end
   	end
 end
