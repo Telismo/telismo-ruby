@@ -5,7 +5,7 @@ require "base64"
 module Telismo
   # Your code goes here...
 
-  	@api_base = "127.0.0.1:3000/api/v1/"
+  	@api_base = "telismo.com/api/v1/"
 
 	class << self
 		attr_accessor :api_key, :api_base, :api_version
