@@ -72,7 +72,7 @@ module Telismo
       raise 'Error connecting to Telismo'
     rescue RestClient::ExceptionWithResponse => e
       if rcode = e.http_code and rbody = e.http_body
-        raise 'API Error'
+        handle_api_error rcode, rbody
       else
         handle_restclient_error(e)
       end
@@ -151,33 +151,44 @@ module Telismo
     end
 	end
 
-    def self.handle_restclient_error(e)
-      case e
-        when RestClient::ServerBrokeConnection, RestClient::RequestTimeout
-          message = "Could not connect to Stripe (#{@api_base}). " +
-            "Please check your internet connection and try again. " +
-            "If this problem persists, you should check Stripe's service status at " +
-            "https://twitter.com/stripestatus, or let us know at support@stripe.com."
+  def self.handle_restclient_error(e)
+    case e
+      when RestClient::ServerBrokeConnection, RestClient::RequestTimeout
+        message = "Could not connect to Telismo (#{@api_base}). " +
+          "Please check your internet connection and try again. "
 
-        when RestClient::SSLCertificateNotVerified
-          message = "Could not verify Stripe's SSL certificate. " +
-            "Please make sure that your network is not intercepting certificates. " +
-            "(Try going to https://api.stripe.com/v1 in your browser.) " +
-            "If this problem persists, let us know at support@stripe.com."
+      when RestClient::SSLCertificateNotVerified
+        message = "Could not verify Telismo's SSL certificate. " +
+          "Please make sure that your network is not intercepting certificates. "
 
-        when SocketError
-          message = "Unexpected error communicating when trying to connect to Stripe. " +
-            "You may be seeing this message because your DNS is not working. " +
-            "To check, try running 'host stripe.com' from the command line."
+      when SocketError
+        message = "Unexpected error communicating when trying to connect to Telismo. " +
+          "You may be seeing this message because your DNS is not working. " +
+          "To check, try running 'host telismo.com' from the command line."
 
-        else
-          message = "Unexpected error communicating with Stripe. " +
-            "If this problem persists, let us know at support@stripe.com."
+      else
+        message = "Unexpected error communicating with Telismo. " +
+          "If this problem persists, let us know at support@telismo.com."
 
-        end
+      end
 
-        raise APIConnectionError.new(message + "\n\n(Network error: #{e.message})")
+      raise APIConnectionError.new(message + "\n\n(Network error: #{e.message})")
+  end
+
+  def self.handle_api_error(rcode, rbody)
+    case rcode
+    when 400, 404
+      raise 'Invalid Request. Please check that this API is invalid. Please contact support@telismo.com if this keeps happening'
+    when 401
+      raise 'Params Error. Please check that your parameters have been specified correctly'
+    when 402
+      raise 'The request was rejected. Please check that your API key is valid'
+    when 403
+      raise 'Invalid authentication key. Please check that your API key is correct'
+    else
+      raise "Error #{rcode} - #{rbody}. Please try get help at support@telismo.com or at help.telismo.com"
     end
+  end
 
     private
 
